@@ -1,0 +1,7 @@
+*.flac
+*.m
+*.jpg
+/interpreter/*
+*.zip
+test.py
+/.idea/*
