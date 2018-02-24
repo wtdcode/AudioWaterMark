@@ -5,3 +5,7 @@
 *.zip
 test.py
 /.idea/*
+*.zip
+*.json
+/test/*
+adwtmk/__pycache__/*
