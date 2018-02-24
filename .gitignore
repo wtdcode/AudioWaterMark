@@ -3,7 +3,6 @@
 *.jpg
 /interpreter/*
 *.zip
-test.py
 /.idea/*
 *.zip
 *.json
