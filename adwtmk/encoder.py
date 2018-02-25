@@ -19,6 +19,9 @@ def lsb_encode(original_audio: Audio, mark: bytes)->Audio:
     """
     用LSB对音频进行隐写，返回新的Audio对象，同时在Audio.key中保存解码所用的key。
 
+    优点：隐写内容多，实现简单。
+    缺点：鲁棒性差，隐写数据易失。
+
     :param original_audio: 原音频，为一个Audio对象
     :param mark: 要隐写的内容，为一个bytes对象
     :return: 隐写后的音频，为一个Audio对象
