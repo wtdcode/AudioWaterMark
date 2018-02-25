@@ -16,6 +16,13 @@ class KeyNotFoundError(WaterMarkDecodeError):
 
 
 def lsb_decode(marked_audio: Audio, key: dict=None)->bytes:
+    """
+    用Audio.key或者传入的key对音频解LSB码，返回解码所得的bytes。
+
+    :param marked_audio: 用LSB隐写的音频。
+    :param key: （可选）解码用的key，**如果Audio.key是有效的，这个参数会被忽略。**
+    :return: 隐写的bytes。
+    """
     if marked_audio.key is None and key is None:
         raise KeyNotFoundError("No key found.")
     if marked_audio.key.get("type", None) != "LSB" and key.get("type", None) != "LSB":
