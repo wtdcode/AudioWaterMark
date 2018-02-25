@@ -4,7 +4,7 @@ import mutagen
 import json
 from array import array
 
-sample_accuracy = {1: np.int8,
+SAMPLE_ACCURACY = {1: np.int8,
                    2: np.int16,
                    4: np.int32,
                    8: np.int64}
@@ -33,7 +33,7 @@ class Audio(AudioSegment):
         channel_len = len(samples)//channels
         for i in range(channels):
             reshaped_samples.append([samples[i+j*channels] for j in range(channel_len)])
-        return np.array(reshaped_samples, sample_accuracy[samples_width])
+        return np.array(reshaped_samples, SAMPLE_ACCURACY[samples_width])
 
     def spawn(self, data: list, overrides: dict={}):
         if isinstance(data, list):
