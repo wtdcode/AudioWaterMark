@@ -10,6 +10,10 @@ class MarkTooLargeError(WaterMarkEncodeError):
     pass
 
 
+class MarkFormatError(WaterMarkEncodeError):
+    pass
+
+
 def lsb_encode(original_audio: Audio, mark: bytes)->Audio:
     """
     用LSB对音频进行隐写，返回新的Audio对象，同时在Audio.key中保存解码所用的key。
@@ -18,6 +22,8 @@ def lsb_encode(original_audio: Audio, mark: bytes)->Audio:
     :param mark: 要隐写的内容，为一个bytes对象
     :return: 隐写后的音频，为一个Audio对象
     """
+    if not isinstance(mark, bytes):
+        raise MarkFormatError("Mark must be a bytes object.")
     original_samples = original_audio.get_array_of_samples()
     samples_len = len(original_samples)
     if samples_len < 8*len(mark):
