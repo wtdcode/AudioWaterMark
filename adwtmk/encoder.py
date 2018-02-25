@@ -1,5 +1,6 @@
 import numpy as np
 from adwtmk.audio import Audio
+from adwtmk.utilities import *
 
 
 class WaterMarkEncodeError(Exception):
@@ -28,7 +29,7 @@ def lsb_encode(original_audio: Audio, mark: bytes)->Audio:
     samples_len = len(original_samples)
     if samples_len < 8*len(mark):
         raise MarkTooLargeError("Mark too large for LSB encoding.")
-    low_bits = [bit for L in map(lambda byte: [((byte & (1 << i)) >> i) for i in range(7, -1, -1)], mark) for bit in L]
+    low_bits = get_all_bits(mark)
     bits_len = len(low_bits)
     assert(8*len(mark) == bits_len)
     key = np.random.randint(0, samples_len, size=bits_len)
