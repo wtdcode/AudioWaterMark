@@ -48,8 +48,8 @@ class Audio(AudioSegment):
         return new_audio
 
     @staticmethod
-    def get_flatten_samples(arr: np.ndarray)->np.array:
-        return arr.flatten('F')
+    def get_flatten_samples(arr: np.ndarray)->list:
+        return list(arr.flatten('F').tolist())
 
     def export_with_key(self, key_path, out_path=None, format='mp3', codec=None, bitrate=None, parameters=None, tags=None, id3v2_version='4', cover=None)->None:
         out_f = super().export(out_path, format, codec, bitrate, parameters, tags, id3v2_version, cover)
