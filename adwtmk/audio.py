@@ -1,5 +1,6 @@
 from pydub import AudioSegment
 from pydub.utils import get_array_type
+from adwtmk.utilities import *
 import numpy as np
 import mutagen
 import json
@@ -29,15 +30,14 @@ class Audio(AudioSegment):
     def get_reshaped_samples(self)->np.array:
         samples = self.get_array_of_samples()
         channels = self.channels
-        samples_width = self.sample_width
-        reshaped_samples = []
-        channel_len = len(samples)//channels
-        for i in range(channels):
-            reshaped_samples.append([samples[i+j*channels] for j in range(channel_len)])
-        return np.array(reshaped_samples, SAMPLE_ACCURACY[samples_width])
+        channel_length = len(samples) // channels
+        return reg_samples(np.reshape(samples, (channels, channel_length), 'F').copy(), self.sample_width)
 
     def spawn(self, data: list, overrides: dict = {}): # just make pydub and PEP8 happy :P
         if isinstance(data, list):
+            data = array(get_array_type(self.sample_width*8), data)
+        if isinstance(data, np.ndarray):
+            data = stretch_samples(data, self.sample_width).tolist()
             data = array(get_array_type(self.sample_width*8), data)
         return self._spawn(data, overrides)
 
