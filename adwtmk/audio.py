@@ -52,10 +52,14 @@ class Audio(AudioSegment):
     def get_flatten_samples(arr: np.ndarray)->np.ndarray:
         return np.array(arr).flatten('F').copy()
 
+    def export(self, out_f=None, format='mp3', codec=None, bitrate=None, parameters=None, tags=None, id3v2_version='4', cover=None)->None:
+        out_fp = super().export(out_f, format, codec, bitrate, parameters, tags, id3v2_version, cover)
+        out_fp.close()
+        return
+
     def export_with_key(self, key_path, out_path=None, format='mp3', codec=None, bitrate=None, parameters=None, tags=None, id3v2_version='4', cover=None)->None:
-        out_f = super().export(out_path, format, codec, bitrate, parameters, tags, id3v2_version, cover)
+        super().export(out_path, format, codec, bitrate, parameters, tags, id3v2_version, cover)
         with open(key_path, mode="w+") as f:
             json.dump(self.key, f, indent=4)
-        out_f.close()
         return
 
