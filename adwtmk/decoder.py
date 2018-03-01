@@ -1,10 +1,7 @@
 from adwtmk.audio import Audio
-from functools import reduce
-from array import array
-from pydub.utils import ARRAY_RANGES
 from adwtmk.utilities import *
 import numpy as np
-
+import pyfftw
 
 class WaterMarkDecodeError(Exception):
     pass
@@ -61,6 +58,10 @@ def lsb_decode(marked_audio: Audio, key: dict=None)->bytes:
 
 @dectect_key("SINGLE_ECHO")
 def echo_decode(marked_audio: Audio, key: dict=None)->bytes:
+    np.fft.fft = pyfftw.interfaces.numpy_fft.fft
+    np.fft.ifft = pyfftw.interfaces.numpy_fft.ifft
+    pyfftw.interfaces.cache.enable()
+    pyfftw.interfaces.cache.set_keepalive_time(1.0)
     key_list = key['key']
     m = key_list['m']
     fragment_len = key_list['fragment_len']

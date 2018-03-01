@@ -1,9 +1,7 @@
-import numpy as np
 import numpy.matlib as mt
 from adwtmk.audio import Audio
 from adwtmk.utilities import *
-from pydub.utils import ARRAY_RANGES
-from scipy.signal import lfilter
+from scipy.signal import fftconvolve
 
 class WaterMarkEncodeError(Exception):
     pass
@@ -65,7 +63,7 @@ def echo_encode(original_audio: Audio, mark: bytes, alpha: float = 0.7, m: tuple
     kernel1 = np.concatenate((mt.zeros((channels, m[1])), alpha * original_samples_reg), 1)
     direct_sig = np.reshape(np.matrix(mt.ones((fragment_len, 1))) * bits, (encoded_len, 1), 'F')
     smooth_length = int(np.floor(fragment_len/4) - np.floor(fragment_len/4) % 4)
-    tp = np.matrix(np.convolve(np.array(direct_sig)[:, 0], np.hanning(smooth_length)))
+    tp = np.matrix(fftconvolve(np.array(direct_sig)[:, 0], np.hanning(smooth_length)))
     window = tp[0, smooth_length // 2:tp.shape[1] - smooth_length // 2 + 1] / np.max(np.abs(tp))
     mixer = mt.ones((channels, 1)) * window
     encoded_samples_reg = original_samples_reg[:, :encoded_len] + \
