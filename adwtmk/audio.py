@@ -27,16 +27,17 @@ class Audio(AudioSegment):
             obj.tags[k] = v[0]
         return obj
 
-    def get_reshaped_samples(self)->np.array:
+    def get_reshaped_samples(self)->np.ndarray:
         samples = self.get_array_of_samples()
         channels = self.channels
         channel_length = len(samples) // channels
-        return reg_samples(np.reshape(samples, (channels, channel_length), 'F').copy(), self.sample_width)
+        return reg_samples(np.reshape(np.array(samples), (channels, channel_length), 'F').copy(), self.sample_width)
 
-    def spawn(self, data: list, overrides: dict = {}): # just make pydub and PEP8 happy :P
+    def spawn(self, data, overrides: dict = {}): # just make pydub and PEP8 happy :P
         if isinstance(data, list):
             data = array(get_array_type(self.sample_width*8), data)
         if isinstance(data, np.ndarray):
+            data = Audio.get_flatten_samples(data)
             data = stretch_samples(data, self.sample_width).tolist()
             data = array(get_array_type(self.sample_width*8), data)
         return self._spawn(data, overrides)
@@ -48,8 +49,8 @@ class Audio(AudioSegment):
         return new_audio
 
     @staticmethod
-    def get_flatten_samples(arr: np.ndarray)->list:
-        return list(arr.flatten('F').tolist())
+    def get_flatten_samples(arr: np.ndarray)->np.ndarray:
+        return np.array(arr).flatten('F').copy()
 
     def export_with_key(self, key_path, out_path=None, format='mp3', codec=None, bitrate=None, parameters=None, tags=None, id3v2_version='4', cover=None)->None:
         out_f = super().export(out_path, format, codec, bitrate, parameters, tags, id3v2_version, cover)
