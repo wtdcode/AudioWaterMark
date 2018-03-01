@@ -32,4 +32,4 @@ def stretch_samples(samples: np.array, sample_width)->np.array:
     samples[samples > 1.0] = 1.0
     samples[samples < -1.0] = -1.0
     max_sample = ARRAY_RANGES[sample_width*8][1]
-    return samples * max_sample
+    return (samples * max_sample).astype('int32')
