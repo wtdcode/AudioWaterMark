@@ -27,6 +27,9 @@ class Audio(AudioSegment):
             obj.tags[k] = v[0]
         return obj
 
+    def get_array_of_regular_samples(self)->np.ndarray:
+        return reg_samples(np.array(self.get_array_of_samples()), self.sample_width)
+
     def get_reshaped_samples(self)->np.ndarray:
         samples = self.get_array_of_samples()
         channels = self.channels
