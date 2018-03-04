@@ -17,7 +17,7 @@ class MarkFormatError(WaterMarkEncodeError):
 
 def lsb_encode(original_audio: Audio, mark: bytes) -> Audio:
     """
-    用LSB对音频进行隐写，返回新的Audio对象，同时在Audio.key中保存解码所用的key。
+    用LSB对音频进行隐写。
 
     优点：隐写内容多，实现简单。
     缺点：鲁棒性差，隐写数据易失。
@@ -46,6 +46,18 @@ def lsb_encode(original_audio: Audio, mark: bytes) -> Audio:
 
 
 def echo_encode(original_audio: Audio, mark: bytes, alpha: float = 0.7, m: tuple = (150, 200)) -> Audio:
+    """
+    用回声隐藏进行隐写。
+
+    优点：透明性强，写入的数据并非噪声，鲁棒性好，抗压缩性好。
+    缺点：容量小，这里默认是8192个取样点写入一个比特。
+
+    :param original_audio: 原音频，为一个Audio对象
+    :param mark: 水印，必须为一个bytes对象
+    :param alpha: 衰退率，理论上这个值越大水印鲁棒性越好，但生成的音频回音会更强
+    :param m: 回音的延迟，分别为比特0和比特1的延迟
+    :return: 隐写后的音频，为一个Audio对象
+    """
     if not isinstance(mark, bytes):
         raise MarkFormatError("Mark must be a bytes object.")
     if alpha > 1 or alpha < 0:
