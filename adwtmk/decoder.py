@@ -23,10 +23,11 @@ def dectect_key(key_type: str):
             if (marked_audio.key is None or marked_audio.key.get("type", None) != key_type) and \
                (key is None or key.get("type", None) != key_type):
                 raise WrongKeyError("Wrong type of key.")
-            if marked_audio.key.get("type", None) == key_type:
+            if key is None or key.get("type", None) != key_type:
                 key = marked_audio.key
             if key.get('key', None) is None:
                 raise KeyNotFoundError("No key found.")
+            key = key['key']
             return func(marked_audio, key)
         return wrapper
     return detect
@@ -41,7 +42,7 @@ def lsb_decode(marked_audio: Audio, key: dict=None)->bytes:
     :param key: （可选）解码用的key，**如果Audio.key是有效的，这个参数会被忽略。**
     :return: 隐写的bytes。
     """
-    key_list = key['key']
+    key_list = key
     if not isinstance(key_list, list):
         raise WrongKeyError("Wrong type of key.")
     if len(key_list) % 8 != 0:
@@ -62,10 +63,9 @@ def echo_decode(marked_audio: Audio, key: dict=None)->bytes:
     np.fft.ifft = pyfftw.interfaces.numpy_fft.ifft
     pyfftw.interfaces.cache.enable()
     pyfftw.interfaces.cache.set_keepalive_time(1.0)
-    key_list = key['key']
-    m = key_list['m']
-    fragment_len = key_list['fragment_len']
-    bits_len = key_list['bits_len']
+    m = key['m']
+    fragment_len = key['fragment_len']
+    bits_len = key['bits_len']
     encoded_len = fragment_len*bits_len
     samples_width = marked_audio.sample_width
     marked_samples_reg = marked_audio.get_reshaped_samples()
