@@ -1,1 +1,1 @@
-__all__ = ["audio", "encoder", "decoder"]
+__all__ = ["audio", "encoder", "decoder", "utilities"]
