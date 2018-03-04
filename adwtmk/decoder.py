@@ -90,3 +90,24 @@ def echo_decode(marked_audio: Audio, key: dict=None)->bytes:
     except IndexError:
         raise WrongKeyError("Invalid key.")
     return decoded_bytes
+
+
+@dectect_key("DFT")
+def dft_decode(marked_audio: Audio, key: dict=None)->bytes:
+    np.fft.fft = pyfftw.interfaces.numpy_fft.fft
+    np.fft.ifft = pyfftw.interfaces.numpy_fft.ifft
+    random_key = key['random_key']
+    original_audio = key['original_audio']
+    bits = []
+    original_spectrum = np.fft.ifft(original_audio.get_array_of_regular_samples(), planner_effort="FFTW_ESTIMATE")
+    marked_spectrum = np.fft.ifft(marked_audio.get_array_of_regular_samples(), planner_effort="FFTW_ESTIMATE")
+    for i in random_key:
+        if marked_spectrum[i] > original_spectrum[i]:
+            bits.append(1)
+        else:
+            bits.append(0)
+    try:
+        decoded_bytes = get_all_bytes(bits)
+    except IndexError:
+        raise WrongKeyError("Invalid key.")
+    return decoded_bytes

@@ -2,6 +2,8 @@ import numpy.matlib as mt
 from adwtmk.audio import Audio
 from adwtmk.utilities import *
 from scipy.signal import fftconvolve
+import pyfftw
+
 
 class WaterMarkEncodeError(Exception):
     pass
@@ -88,5 +90,32 @@ def echo_encode(original_audio: Audio, mark: bytes, alpha: float = 0.7, m: tuple
                          'm': m,
                          'fragment_len': fragment_len,
                          'bits_len': bits_len
+                     }}
+    return new_audio
+
+
+def dft_encode(original_audio: Audio, mark: bytes, alpha: float = 0.5, smooth: bool = True):
+    np.fft.fft = pyfftw.interfaces.numpy_fft.fft
+    np.fft.ifft = pyfftw.interfaces.numpy_fft.ifft
+    if not isinstance(mark, bytes):
+        raise MarkFormatError("Mark must be a bytes object.")
+    bits = np.array(get_all_bits(mark))
+    bits_len = len(bits)
+    original_samples_reg = original_audio.get_array_of_regular_samples()
+    samples_len = len(original_samples_reg)
+    if bits_len > samples_len:
+        raise MarkTooLargeError("Mark too large for DFT encoding.")
+    bits[bits == 0] = -1
+    original_spectrum = np.fft.fft(original_samples_reg, planner_effort="FFTW_ESTIMATE")
+    random_key = np.random.randint(0, samples_len, bits_len)
+    marked_spectrum = original_spectrum
+    marked_spectrum[random_key] += (bits*alpha)
+    marked_samples_reg = np.fft.ifft(original_spectrum, planner_effort="FFTW_ESTIMATE")
+    if smooth:
+        marked_samples_reg[original_samples_reg == 0.0] = 0.0
+    new_audio = original_audio.spawn(np.real(marked_samples_reg))
+    new_audio.key = {'type': 'DFT',
+                     'key': {
+                         'random_key': random_key.tolist()
                      }}
     return new_audio
