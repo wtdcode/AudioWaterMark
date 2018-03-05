@@ -37,7 +37,7 @@ def lsb_encode(original_audio: Audio, mark: bytes) -> Audio:
     low_bits = get_all_bits(mark)
     bits_len = len(low_bits)
     assert (8 * len(mark) == bits_len)
-    key = np.random.randint(0, samples_len, size=bits_len)
+    key = np.random.choice(samples_len, bits_len, replace=False)
     marked_samples = original_samples
     for i in range(bits_len):
         marked_samples[key[i]] = (marked_samples[key[i]] & -2) + low_bits[i]  # maybe better solution?
@@ -107,7 +107,7 @@ def dft_encode(original_audio: Audio, mark: bytes, alpha: float = 0.5, smooth: b
         raise MarkTooLargeError("Mark too large for DFT encoding.")
     bits[bits == 0] = -1
     original_spectrum = np.fft.fft(original_samples_reg, planner_effort="FFTW_ESTIMATE")
-    random_key = np.random.randint(0, samples_len, bits_len)
+    random_key = np.random.choice(samples_len, bits_len, replace=False)
     marked_spectrum = original_spectrum
     marked_spectrum[random_key] += (bits*alpha)
     marked_samples_reg = np.fft.ifft(original_spectrum, planner_effort="FFTW_ESTIMATE")
