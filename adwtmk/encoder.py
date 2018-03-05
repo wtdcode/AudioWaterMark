@@ -103,14 +103,15 @@ def dft_encode(original_audio: Audio, mark: bytes, alpha: float = 0.5, smooth: b
     bits_len = len(bits)
     original_samples_reg = original_audio.get_array_of_regular_samples()
     samples_len = len(original_samples_reg)
-    if bits_len > samples_len:
+    if 2*bits_len > samples_len:
         raise MarkTooLargeError("Mark too large for DFT encoding.")
     bits[bits == 0] = -1
     original_spectrum = np.fft.fft(original_samples_reg, planner_effort="FFTW_ESTIMATE")
-    random_key = np.random.choice(samples_len, bits_len, replace=False)
+    random_key = np.random.choice((samples_len-1)//2, bits_len, replace=False) + 1
     marked_spectrum = original_spectrum
-    marked_spectrum[random_key] += (bits*alpha)
-    marked_samples_reg = np.fft.ifft(original_spectrum, planner_effort="FFTW_ESTIMATE")
+    marked_spectrum[random_key] += (bits * alpha)
+    marked_spectrum[samples_len - random_key] += (bits*alpha)
+    marked_samples_reg = np.fft.ifft(marked_spectrum, planner_effort="FFTW_ESTIMATE")
     if smooth:
         marked_samples_reg[original_samples_reg == 0.0] = 0.0
     new_audio = original_audio.spawn(np.real(marked_samples_reg))
