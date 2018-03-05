@@ -99,10 +99,10 @@ def dft_decode(marked_audio: Audio, key: dict=None)->bytes:
     random_key = key['random_key']
     original_audio = key['original_audio']
     bits = []
-    original_spectrum = np.fft.ifft(original_audio.get_array_of_regular_samples(), planner_effort="FFTW_ESTIMATE")
-    marked_spectrum = np.fft.ifft(marked_audio.get_array_of_regular_samples(), planner_effort="FFTW_ESTIMATE")
+    original_spectrum = np.fft.fft(original_audio.get_array_of_regular_samples(), planner_effort="FFTW_ESTIMATE")
+    marked_spectrum = np.fft.fft(marked_audio.get_array_of_regular_samples(), planner_effort="FFTW_ESTIMATE")
     for i in random_key:
-        if marked_spectrum[i] > original_spectrum[i]:
+        if np.real(marked_spectrum[i]) > np.real(original_spectrum[i]):
             bits.append(1)
         else:
             bits.append(0)
