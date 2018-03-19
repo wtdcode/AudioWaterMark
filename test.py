@@ -38,7 +38,7 @@ print(dft_decode(DFT_marked, DFT_key))
 
 
 # spawn a new audio like audiowrite in matlab
-def audiowrite(samples: array,
+def audiowrite(samples: array, key: dict,
                frame_rate: int, sample_width: int, channels: int,
                key_path: str, out_path: str, format: str,
                tags: dict)->None:
@@ -46,6 +46,7 @@ def audiowrite(samples: array,
     tp = tp.spawn(samples, {'sample_width': sample_width,
                             'frame_rate': frame_rate,
                             'channels': channels})
+    tp.key = key
     tp.export_with_key(key_path=key_path, out_path=out_path, format=format, tags=tags)
     return
 
@@ -58,19 +59,19 @@ def audiowrite_OOP(audio: Audio, key_path: str, out_path: str, format: str)->Non
     return
 
 
-audiowrite(LSB_marked.get_array_of_samples(),
+audiowrite(LSB_marked.get_array_of_samples(), LSB_marked.key,
            LSB_marked.frame_rate,
            LSB_marked.sample_width,
            LSB_marked.channels,
            "./test/LSB.json", "./test/LSB_marked.flac", "flac",
            LSB_marked.tags)
-audiowrite(ECHO_marked.get_array_of_samples(),
+audiowrite(ECHO_marked.get_array_of_samples(), ECHO_marked.key,
            ECHO_marked.frame_rate,
            ECHO_marked.sample_width,
            ECHO_marked.channels,
            "./test/ECHO,json", "./test/ECHO_marked.flac", "flac",
            ECHO_marked.tags)
-audiowrite(DFT_marked.get_array_of_samples(),
+audiowrite(DFT_marked.get_array_of_samples(), DFT_marked.key,
            DFT_marked.frame_rate,
            DFT_marked.sample_width,
            DFT_marked.channels,
@@ -100,7 +101,7 @@ mark_frame_rate = DFT_marked_with_audio.key['key']['metadata']['frame_rate']
 mark_channels = DFT_marked_with_audio.key['key']['metadata']['channels']
 mark_tags = mark.tags
 decoded_samples = array(get_array_type(mark_sample_width*8), decoded_bytes) # should be packaged into Audio
-audiowrite(decoded_samples, mark_frame_rate, mark_sample_width, mark_channels,
+audiowrite(decoded_samples, DFT_marked_with_audio.key, mark_frame_rate, mark_sample_width, mark_channels,
            "./test/DFT_AUDIO.json", "./test/extracted.flac", "flac", mark_tags)
 
 # calculate BER
