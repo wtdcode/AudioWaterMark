@@ -48,7 +48,7 @@ def lsb_decode(marked_audio: Audio, key: dict=None)->bytes:
     if len(key_list) % 8 != 0:
         raise WrongKeyError("Wrong length of key.")
     samples = marked_audio.get_array_of_samples()
-    low_bits = [samples[index] & 1 for index in key_list]
+    low_bits = [samples[index] & 1 for index in key_list] # 从最低位获取原有数据
     decoded_bytes = None
     try:
         decoded_bytes = get_all_bytes(low_bits)
@@ -72,6 +72,7 @@ def echo_decode(marked_audio: Audio, key: dict=None)->bytes:
     channel0_samples_reg = np.reshape(marked_samples_reg[0, :encoded_len], (fragment_len, bits_len), 'F')
     bits = []
     for i in range(bits_len):
+        # 这个 rcep 是求倒谱
         rcep = np.real(
             np.fft.ifft(
                 np.log(
@@ -81,6 +82,7 @@ def echo_decode(marked_audio: Audio, key: dict=None)->bytes:
                                 channel0_samples_reg[:, i],
                                 np.bartlett(fragment_len)
                             ))))))
+        # 比较峰值的大小来确定原来的信息
         if rcep[m[0]] >= rcep[m[1]]:
             bits.append(0)
         else:
@@ -102,6 +104,8 @@ def dft_decode(marked_audio: Audio, key: dict=None)->bytes:
     original_spectrum = np.fft.fft(original_audio.get_array_of_regular_samples(), planner_effort="FFTW_ESTIMATE")
     marked_spectrum = np.fft.fft(marked_audio.get_array_of_regular_samples(), planner_effort="FFTW_ESTIMATE")
     for i in random_key:
+        # 这里 spectrum 是频谱
+        # 注意 DFT 解密的时候需要原音频
         if np.real(marked_spectrum[i]) > np.real(original_spectrum[i]):
             bits.append(1)
         else:
